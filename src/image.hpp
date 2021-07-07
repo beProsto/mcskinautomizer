@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -14,12 +16,14 @@ public:
 		load(_fileName);
 	}
 	~Image() {
-		if(m_Data != nullptr)
-			stbi_image_free(m_Data);
+		if(m_Data != nullptr) stbi_image_free(m_Data);
 	}
 
 	bool load(std::string _fileName) {
+		if(m_Data != nullptr) stbi_image_free(m_Data);
+		
 		m_Data = stbi_load(_fileName.c_str(), &m_Width, &m_Height, &m_Format, STBI_rgb_alpha);
+		
 		return check() && m_Data != nullptr;
 	}
 	void save(std::string _fileName) {
