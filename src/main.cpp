@@ -1,14 +1,31 @@
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "ven/stb_image.h"
-#include "ven/stb_image_write.h"
+#include "./image.hpp"
 
 
 int main(int argc, char** argv) {
+	Image skin;
+	Image suit;
+	Image tail;
 
-	uint8_t* img = stbi_load()
+	if(!skin.load("in/skins/hooh.png")) {
+		return 1;
+	}
+	if(!suit.load("in/suits/1.png")) {
+		return 1;
+	}
+	if(!tail.load("in/tails/hooh_t.png")) {
+		return 1;
+	}
+
+	std::cout << "loaded\n";
+	
+	suit -= tail;
+	skin += suit;
+
+	std::cout << "added\n";
+
+	skin.save("out/hooh_1.png");
 
 	return 0;
 }
