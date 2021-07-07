@@ -4,37 +4,60 @@
 #include "./scan.hpp"
 
 int main(int argc, char** argv) {
-	// Image skin;
-	// Image suit;
-	// Image tail;
-
-	// if(!skin.load("in/skins/hooh.png")) {
-	// 	return 1;
-	// }
-	// if(!suit.load("in/suits/1.png")) {
-	// 	return 1;
-	// }
-	// if(!tail.load("in/tails/hooh_t.png")) {
-	// 	return 1;
-	// }
-
-	// std::cout << "loaded\n";
-	
-	// suit -= tail;
-	// skin += suit;
-
-	// std::cout << "added\n";
-
-	// skin.save("out/hooh_1.png");
-
-
-	FileNamesList files;
-	if(!scanDirectoryForPNGs("in/skins/", files)) {
+	FileNamesList skinsFileNames;
+	if(!scanDirectoryForPNGs("in/skins/", skinsFileNames)) {
+		return 1;
+	}
+	FileNamesList suitsFileNames;
+	if(!scanDirectoryForPNGs("in/suits/", suitsFileNames)) {
+		return 1;
+	}
+	FileNamesList tailsFileNames;
+	if(!scanDirectoryForPNGs("in/tails/", tailsFileNames)) {
 		return 1;
 	}
 	
-	for(std::string& filename : files) {
-		std::cout << filename << std::endl;
+	bool isTailed = false;
+	for(const std::string& filenameSkin : skinsFileNames) {
+		std::cout << filenameSkin;
+		for(const std::string& filenameTail : tailsFileNames) {
+			if(filenameSkin == filenameTail) {
+				std::cout << " <has a tail>";
+				isTailed = true;
+			}
+		}
+		std::cout << ":" << std::endl;
+
+		for(const std::string& filenameSuit : suitsFileNames) {
+			Image skin;
+			Image suit;
+			Image tail;
+
+			if(!skin.load("in/skins/" + filenameSkin)) {
+				std::cerr << "SKIN HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
+				continue;
+			}
+			if(!suit.load("in/suits/" + filenameSuit)) {
+				std::cerr << "SUIT HAS AN INAPPROPRIATE RESOLUTION <" << filenameSuit << "> - 64x64 required!" << std::endl;
+				continue;
+			}
+			
+			if(isTailed) {
+				if(!tail.load("in/tails/" + filenameSkin)) {
+				std::cerr << "TAIL  HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
+				continue;
+				}
+				
+				suit -= tail;
+			}
+			skin += suit;
+
+			std::string finalName = "out/" + filenameSkin.substr(0, filenameSkin.length() - 4) + "_" + filenameSuit;
+			skin.save(finalName);
+			std::cout << "Created: " << finalName << std::endl;
+		}
+
+		isTailed = false;
 	}
 	
 
