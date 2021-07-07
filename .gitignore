@@ -1,5 +1,12 @@
 .vscode/
+
 in/skins/*
 in/suits/*
 in/tails/*
+
+!in/skins/.your_skins_go_here
+!in/suits/.your_suits_go_here
+!in/tails/.your_tails_go_here
+
 out/*
+!out/.your_output_will_be_here
