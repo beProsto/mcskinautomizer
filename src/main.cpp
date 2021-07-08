@@ -1,7 +1,52 @@
 #include <iostream>
+#include <algorithm>
 
 #include "./image.hpp"
 #include "./scan.hpp"
+
+bool combineImg(std::string _filenameSkin, std::string _filenameSuit, bool _isTailed, bool _isEared) {
+	Image skin;
+	Image suit;
+	Image tail;
+	Image ear;
+
+	if(!skin.load("in/skins/" + _filenameSkin)) {
+		std::cerr << "SKIN HAS AN INAPPROPRIATE RESOLUTION <" << _filenameSkin << "> - 64x64 required!" << std::endl;
+		return false;
+	}
+	if(!suit.load("in/suits/" + _filenameSuit)) {
+		std::cerr << "SUIT HAS AN INAPPROPRIATE RESOLUTION <" << _filenameSuit << "> - 64x64 required!" << std::endl;
+		return false;
+	}
+	
+	if(_isTailed) {
+		if(!tail.load("in/tails/" + _filenameSkin)) {
+			std::cerr << "TAIL HAS AN INAPPROPRIATE RESOLUTION <" << _filenameSkin << "> - 64x64 required!" << std::endl;
+			return false;
+		}
+
+		suit -= tail;
+	}
+	if(_isEared) {
+		if(!ear.load("in/ears/" + _filenameSkin)) {
+			std::cerr << "EARS HAVE AN INAPPROPRIATE RESOLUTION <" << _filenameSkin << "> - 64x64 required!" << std::endl;
+			return false;
+		}
+
+		skin -= ear;
+	}
+	skin += suit;
+
+	std::replace(_filenameSuit.begin(), _filenameSuit.end(), '/', '_');
+	std::replace(_filenameSkin.begin(), _filenameSkin.end(), '/', '_');
+
+	std::string finalName = "out/" + _filenameSkin.substr(0, _filenameSkin.length() - 4) + "_" + _filenameSuit;
+	
+	skin.save(finalName);
+	std::cout << "Created: " << finalName << std::endl;
+
+	return true;
+}
 
 int main(int argc, char** argv) {
 	FileNamesList skinsFileNames;
@@ -10,6 +55,10 @@ int main(int argc, char** argv) {
 	}
 	FileNamesList suitsFileNames;
 	if(!scanDirectoryForPNGs("in/suits/", suitsFileNames)) {
+		return 1;
+	}
+	FileNamesList earlessSuitsFileNames;
+	if(!scanDirectoryForPNGs("in/suits/ignore_ears/", earlessSuitsFileNames)) {
 		return 1;
 	}
 	FileNamesList tailsFileNames;
@@ -40,41 +89,10 @@ int main(int argc, char** argv) {
 		std::cout << ":" << std::endl;
 
 		for(const std::string& filenameSuit : suitsFileNames) {
-			Image skin;
-			Image suit;
-			Image tail;
-			Image ear;
-
-			if(!skin.load("in/skins/" + filenameSkin)) {
-				std::cerr << "SKIN HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
-				continue;
-			}
-			if(!suit.load("in/suits/" + filenameSuit)) {
-				std::cerr << "SUIT HAS AN INAPPROPRIATE RESOLUTION <" << filenameSuit << "> - 64x64 required!" << std::endl;
-				continue;
-			}
-			
-			if(isTailed) {
-				if(!tail.load("in/tails/" + filenameSkin)) {
-					std::cerr << "TAIL HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
-					continue;
-				}
-				
-				suit -= tail;
-			}
-			if(isEared) {
-				if(!ear.load("in/ears/" + filenameSkin)) {
-					std::cerr << "EARS HAVE AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
-					continue;
-				}
-				
-				skin -= ear;
-			}
-			skin += suit;
-
-			std::string finalName = "out/" + filenameSkin.substr(0, filenameSkin.length() - 4) + "_" + filenameSuit;
-			skin.save(finalName);
-			std::cout << "Created: " << finalName << std::endl;
+			combineImg(filenameSkin, filenameSuit, isTailed, false);
+		}
+		for(const std::string& filenameSuit : earlessSuitsFileNames) {
+			combineImg(filenameSkin, "ignore_ears/" + filenameSuit, isTailed, isEared);
 		}
 
 		isTailed = false;
