@@ -16,8 +16,13 @@ int main(int argc, char** argv) {
 	if(!scanDirectoryForPNGs("in/tails/", tailsFileNames)) {
 		return 1;
 	}
+	FileNamesList earsFileNames;
+	if(!scanDirectoryForPNGs("in/ears/", earsFileNames)) {
+		return 1;
+	}
 	
 	bool isTailed = false;
+	bool isEared = false;
 	for(const std::string& filenameSkin : skinsFileNames) {
 		std::cout << filenameSkin;
 		for(const std::string& filenameTail : tailsFileNames) {
@@ -26,12 +31,19 @@ int main(int argc, char** argv) {
 				isTailed = true;
 			}
 		}
+		for(const std::string& filenameEar : earsFileNames) {
+			if(filenameSkin == filenameEar) {
+				std::cout << " <has ears>";
+				isEared = true;
+			}
+		}
 		std::cout << ":" << std::endl;
 
 		for(const std::string& filenameSuit : suitsFileNames) {
 			Image skin;
 			Image suit;
 			Image tail;
+			Image ear;
 
 			if(!skin.load("in/skins/" + filenameSkin)) {
 				std::cerr << "SKIN HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
@@ -44,11 +56,19 @@ int main(int argc, char** argv) {
 			
 			if(isTailed) {
 				if(!tail.load("in/tails/" + filenameSkin)) {
-				std::cerr << "TAIL  HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
-				continue;
+					std::cerr << "TAIL HAS AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
+					continue;
 				}
 				
 				suit -= tail;
+			}
+			if(isEared) {
+				if(!ear.load("in/ears/" + filenameSkin)) {
+					std::cerr << "EARS HAVE AN INAPPROPRIATE RESOLUTION <" << filenameSkin << "> - 64x64 required!" << std::endl;
+					continue;
+				}
+				
+				skin -= ear;
 			}
 			skin += suit;
 
@@ -58,6 +78,7 @@ int main(int argc, char** argv) {
 		}
 
 		isTailed = false;
+		isEared = false;
 	}
 	
 
