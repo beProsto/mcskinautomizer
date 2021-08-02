@@ -5,10 +5,10 @@
 #include "./scan.hpp"
 
 bool combineImg(std::string _filenameSkin, std::string _filenameSuit, bool _isTailed, bool _isEared) {
-	Image skin;
-	Image suit;
-	Image tail;
-	Image ear;
+	MCSkinImage skin;
+	MCSkinImage suit;
+	MCSkinImage tail;
+	MCSkinImage ear;
 
 	if(!skin.load("in/skins/" + _filenameSkin)) {
 		std::cerr << "SKIN HAS AN INAPPROPRIATE RESOLUTION <" << _filenameSkin << "> - 64x64 required!" << std::endl;
